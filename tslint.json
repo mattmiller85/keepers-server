@@ -1,0 +1,26 @@
+{
+	"extends": [
+		"tslint:latest"
+	],
+	"rules": {
+		"no-unused-expression": true,
+		"no-duplicate-variable": true,
+		"no-unused-variable": true,
+		"curly": true,
+		"class-name": true,
+		"semicolon": true,
+		"triple-equals": true,
+		"max-line-length": {
+            "options": [140]
+        },
+        "new-parens": true,
+        "no-arg": true,
+        "no-bitwise": true,
+        "no-conditional-assignment": true,
+        "no-consecutive-blank-lines": false,
+		"quotemark": false,
+		"no-console": false,
+		"no-submodule-imports": false
+		
+	}
+}
