@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
 import { Config } from './config';
-import { IMessage } from './core/messages';
+import { IDocumentMessage, IMessage } from './core/messages';
 import { MessageRouter } from './message-router';
 
 const config = new Config();
@@ -28,7 +28,11 @@ messageRouter.on("response", (msg: IMessage) => {
 
 wss.on('connection', (ws: WebSocket) => {
     ws.on('message', async (message: string) => {
-        routeResponsesTo.set((await messageRouter.route(JSON.parse(message))).message.id, ws);
+        const messageResult = await messageRouter.route(JSON.parse(message));
+        // Wait for the real response to come back from a worker based on the id
+        routeResponsesTo.set(messageResult.message.id, ws);
+        // But let's respond right away to let the client know that we actually did get the request.
+        ws.send(JSON.stringify(messageResult.message));
     });
 });
 
