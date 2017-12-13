@@ -1,9 +1,12 @@
+import { ISearchResults } from '../searcher';
 import { IDocument } from './document';
 
 export enum MessageType {
     error = 1,
     queue_for_indexing = 2,
     indexing_finished = 3,
+    search_for_keeper = 4,
+    search_results = 5,
 }
 
 export function getTypedMessage(messageObj: { type?: MessageType }): IMessage {
@@ -45,6 +48,23 @@ export class ErrorMessage extends MessageBase implements IMessage {
 }
 
 // tslint:disable-next-line:max-classes-per-file
+export class SearchRequestMessage extends MessageBase implements IMessage {
+    public readonly type = MessageType.search_for_keeper;
+    public searchString: string;
+    public documentId: string;
+}
+
+// tslint:disable-next-line:max-classes-per-file
+export class SearchResultsMessage extends MessageBase implements IMessage {
+    public readonly type = MessageType.search_results;
+    public searchString: ISearchResults;
+
+    constructor(results: ISearchResults) {
+        super({ results });
+    }
+}
+
+// tslint:disable-next-line:max-classes-per-file
 export class QueueForIndexingMessage extends MessageBase implements IDocumentMessage {
     public readonly type = MessageType.queue_for_indexing;
     public document: IDocument;
@@ -55,4 +75,3 @@ export class IndexingFinishedMessage extends MessageBase implements IDocumentMes
     public readonly type = MessageType.indexing_finished;
     public document: IDocument;
 }
-

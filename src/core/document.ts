@@ -1,6 +1,10 @@
 export interface IDocument {
     id: string;
     text: string;
-    bytes: Buffer;
+    tags: string;
     image_enc: string;
+}
+
+export interface IDocumentResult extends IDocument {
+    score: number;
 }

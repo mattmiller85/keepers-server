@@ -31,7 +31,7 @@ wss.on('connection', (ws: WebSocket) => {
         const messageResult = await messageRouter.route(JSON.parse(message));
         // Wait for the real response to come back from a worker based on the id
         routeResponsesTo.set(messageResult.message.id, ws);
-        // But let's respond right away to let the client know that we actually did get the request.
+        // But let's respond right away to let the client know that we actually did get the request and they can put it in "unprocessed".
         ws.send(JSON.stringify(messageResult.message));
     });
 });
