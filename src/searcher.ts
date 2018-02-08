@@ -21,6 +21,34 @@ export class Searcher {
     //     //return await this.client.get({ index: "documents"})
     // }
 
+    public async updateTags(ids: string[], tags: string): Promise<{ ok: boolean, message: string}> {
+        const pingGood = await this
+        .client
+        .ping({requestTimeout: 1000});
+        const response = { ok: false, message: '' };
+        ids.forEach(async (id) => {
+            const resp = await this.client.update({ index: "documents", type: "document", id, body: {
+                doc: { tags },
+            }});
+        });
+        response.ok = true;
+        response.message = 'Success';
+        return Promise.resolve(response);
+    }
+
+    public async delete(ids: string[]): Promise<{ ok: boolean, message: string}> {
+        const pingGood = await this
+        .client
+        .ping({requestTimeout: 1000});
+        const response = { ok: false, message: '' };
+        ids.forEach(async (id) => {
+            const resp = await this.client.delete({ index: "documents", type: "document", id });
+        });
+        response.ok = true;
+        response.message = 'Success';
+        return Promise.resolve(response);
+    }
+
     public async getKeeper(id: string): Promise<IDocumentResult> {
         const pingGood = await this
         .client
@@ -63,6 +91,7 @@ export class Searcher {
             tags: (hit._source as any).tags,
             image_enc: fillImage ? hit._source.image : "",
             score: hit._score,
+            created: new Date((hit._source as any).created),
         });
     }
 }

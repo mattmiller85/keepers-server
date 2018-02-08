@@ -2,7 +2,16 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 
 import { IKeepersConfig } from './config';
-import { IMessage, MessageType, SearchRequestMessage, SearchResultsMessage } from './core/messages';
+import {
+    DeleteMessage,
+    IMessage,
+    MessageBase,
+    MessageType,
+    SearchRequestMessage,
+    SearchResultsMessage,
+    SearchResultsType,
+    UpdateTagsMessage,
+} from './core/messages';
 import { Queuer } from './queuer';
 import { Searcher } from './searcher';
 
@@ -66,6 +75,14 @@ export class MessageRouter extends EventEmitter {
                 return Promise.resolve({message, success: result.success});
             case MessageType.search_for_keeper:
                 return this.routeSearchMessage(message);
+            case MessageType.update_tags:
+                const updateMsg = message as UpdateTagsMessage;
+                const updateResult = await this.searcher.updateTags(updateMsg.keeperIds, updateMsg.tags);
+                return Promise.resolve({ message, success: updateResult.ok, err: updateResult.message });
+            case MessageType.remove_document:
+                const deleteMsg = message as DeleteMessage;
+                const deleteResult = await this.searcher.delete(deleteMsg.keeperIds);
+                return Promise.resolve({ message, success: deleteResult.ok, err: deleteResult.message });
         }
     }
 
@@ -84,6 +101,7 @@ export class MessageRouter extends EventEmitter {
             const searchResult = await this.searcher.getKeeper(searchRequestMessage.documentId);
             const resultsMessage = new SearchResultsMessage({ results: [searchResult], tookMs: 0 });
             resultsMessage.id = message.id;
+            resultsMessage.resultsType = SearchResultsType.Single;
             return Promise.resolve({ message: resultsMessage, success: true });
         }
     }

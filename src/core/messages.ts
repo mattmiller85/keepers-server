@@ -7,6 +7,9 @@ export enum MessageType {
     indexing_finished = 3,
     search_for_keeper = 4,
     search_results = 5,
+    update_tags = 6,
+    remove_document = 7,
+    update_delete_response = 8,
 }
 
 export function getTypedMessage(messageObj: { type?: MessageType }): IMessage {
@@ -26,7 +29,7 @@ export function getTypedMessage(messageObj: { type?: MessageType }): IMessage {
 
 export interface IMessage {
     readonly type: MessageType;
-    id: string;
+    id?: string;
 }
 
 export interface IDocumentMessage extends IMessage {
@@ -35,7 +38,7 @@ export interface IDocumentMessage extends IMessage {
 
 export abstract class MessageBase implements IMessage {
     public abstract readonly type: MessageType;
-    public id: string;
+    public id?: string;
     constructor(messageObj: any) {
         Object.assign(this, messageObj);
     }
@@ -58,10 +61,15 @@ export class SearchRequestMessage extends MessageBase implements IMessage {
 export class SearchResultsMessage extends MessageBase implements IMessage {
     public readonly type = MessageType.search_results;
     public searchString: ISearchResults;
-
-    constructor(results: ISearchResults) {
+    public resultsType: SearchResultsType = SearchResultsType.Search;
+    constructor(public results: ISearchResults) {
         super({ results });
     }
+}
+
+export enum SearchResultsType {
+    Search = 1,
+    Single = 2,
 }
 
 // tslint:disable-next-line:max-classes-per-file
@@ -75,3 +83,17 @@ export class IndexingFinishedMessage extends MessageBase implements IDocumentMes
     public readonly type = MessageType.indexing_finished;
     public document: IDocument;
 }
+
+// tslint:disable-next-line:max-classes-per-file
+export class UpdateTagsMessage extends MessageBase implements IMessage {
+    public readonly type = MessageType.update_tags;
+    public keeperIds: string[];
+    public tags: string;
+}
+
+// tslint:disable-next-line:max-classes-per-file
+export class DeleteMessage extends MessageBase implements IMessage {
+    public readonly type = MessageType.remove_document;
+    public keeperIds: string[];
+}
+
